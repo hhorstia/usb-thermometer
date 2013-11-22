@@ -54,8 +54,8 @@
 #define INTERFACE1 0x00
 #define INTERFACE2 0x01
 
-/* EDIT THIS TO SUBSTRACT x DEGREES CELSIUS FROM THE OUTPUT! - SOME TEMPer DEVICES SHOW TOO MUCH */
-const static int offsetDegrees = 0;
+/* Edit this to add X degrees celsius to the output - Some TEMPer devices show too much or too little. */
+const static float offsetDegrees = 0.0;
 
 const static int reqIntLen=8;
 const static int reqBulkLen=8;
@@ -294,22 +294,22 @@ void bulk_transfer(usb_dev_handle *dev) {
     r = usb_bulk_write(dev, endpoint_Bulk_out, NULL, 0, timeout);
     if( r < 0 )
     {
-          perror("USB bulk write"); bad("USB write failed"); 
+          perror("USB bulk write"); bad("USB write failed");
     }
     r = usb_bulk_read(dev, endpoint_Bulk_in, answer, reqBulkLen, timeout);
     if( r != reqBulkLen )
     {
-          perror("USB bulk read"); bad("USB read failed"); 
+          perror("USB bulk read"); bad("USB read failed");
     }
 
 
     if(debug) {
       for (i=0;i<reqBulkLen; i++) printf("%02x ",answer[i]  & 0xFF);
     }
- 
+
     usb_release_interface(dev, 0);
 }
- 
+
 
 void ex_program(int sig) {
       bsalir=1;
@@ -403,8 +403,8 @@ int main( int argc, char **argv) {
            control_transfer(lvr_winusb, uTemperatura );
            interrupt_read_temperatura(lvr_winusb, &tempc);
 
-           // Substract or add to temperature if necessary to calibrate
-           tempc = (tempc - offsetDegrees);
+           // Substract or add to temperature if necessary to correct error
+           tempc = (tempc + offsetDegrees);
 
            t = time(NULL);
            local = localtime(&t);
